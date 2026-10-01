@@ -33,7 +33,10 @@ def get_offering(offering_id):
 
 def get_prospect_record(prospect_id):
     "Return the source prospect record for prospect_id, or None if not found."
-    return PROSPECTS.get(prospect_id)
+    record = PROSPECTS.get(prospect_id)
+    if record is None:
+        return None
+    return {key: value for key, value in record.items() if key != "billing_qualification"}
 
 
 def get_rep(rep):
@@ -63,7 +66,11 @@ def fetch_tech_stack(prospect_id):
 @traceable(run_type="tool", name="get_profile_from_db")
 def get_profile_from_db(prospect_id):
     "Look up a stored prospect profile. Returns {'prospect_profile': record|None}."
-    return {"prospect_profile": _PROFILES.get(prospect_id)}
+    profile = _PROFILES.get(prospect_id)
+    if profile is not None:
+        profile = {key: value for key, value in profile.items() if key != "billing_qualification"}
+        _PROFILES[prospect_id] = profile
+    return {"prospect_profile": profile}
 
 
 @traceable(run_type="tool", name="save_profile_to_db")
